@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rookie Edge — NFL Card Analytics</title>
+<style>
+:root{--bg:#0b1020;--panel:#121a2d;--panel2:#17223a;--line:#293651;--text:#edf2ff;--muted:#9ba9c4;--green:#1f9d62;--yellow:#c99a13;--orange:#d96b25;--red:#cf4545;--blue:#6ea8fe}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(135deg,#0b1020,#101a2d);color:var(--text);font:14px/1.45 Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+.wrap{max-width:1440px;margin:auto;padding:26px}.top{display:flex;justify-content:space-between;gap:20px;align-items:center;flex-wrap:wrap}.brand{display:flex;align-items:center;gap:12px}.logo{width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,#7c9dff,#a5f3fc);display:grid;place-items:center;color:#0b1020;font-weight:900;font-size:20px}.eyebrow{color:#8eaaff;text-transform:uppercase;letter-spacing:.14em;font-size:11px;font-weight:800}.h1{font-size:28px;font-weight:800;letter-spacing:-.03em}.sub{color:var(--muted);margin-top:3px}.actions{display:flex;gap:8px;flex-wrap:wrap}.btn{border:1px solid var(--line);background:#1a2740;color:var(--text);padding:10px 13px;border-radius:10px;cursor:pointer;font-weight:650}.btn.primary{background:#dce8ff;color:#111b30;border-color:#dce8ff}.btn:hover{filter:brightness(1.12)}.notice{margin:22px 0;padding:13px 16px;border:1px solid #5c4a21;background:#2a2415;border-radius:12px;color:#f6d98b}.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:18px 0}.stat,.panel{background:rgba(18,26,45,.94);border:1px solid var(--line);border-radius:16px}.stat{padding:17px}.stat .label{color:var(--muted);font-size:12px}.stat .value{font-size:26px;font-weight:800;margin-top:6px}.stat .small{font-size:11px;color:var(--muted);margin-top:3px}.panel{padding:18px;margin-top:14px}.panelhead{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:13px}.panel h2{font-size:16px;margin:0}.muted{color:var(--muted)}.filters{display:flex;gap:8px;flex-wrap:wrap}.input,select{background:#0c1425;color:var(--text);border:1px solid var(--line);border-radius:9px;padding:9px 10px;min-width:0}.filters .input{width:220px}.tablewrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:970px}th{text-align:left;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.07em;font-weight:700;padding:12px 10px;border-bottom:1px solid var(--line);white-space:nowrap}td{padding:12px 10px;border-bottom:1px solid #202b42;vertical-align:middle}tr:last-child td{border-bottom:0}.player{font-weight:750}.subline{font-size:11px;color:var(--muted);margin-top:2px}.score{font-weight:850;font-size:15px}.pill{display:inline-flex;padding:4px 9px;border-radius:100px;font-size:11px;font-weight:850;letter-spacing:.03em}.green{background:#173d30;color:#8ff0bd}.yellow{background:#493a13;color:#ffe28b}.orange{background:#4a2b1a;color:#ffb27d}.red{background:#4b2027;color:#ff9aa5}.neutral{background:#243149;color:#c2cee4}.positive{color:#8ff0bd}.negative{color:#ff9aa5}.mini{width:90px;padding:7px}.smallinput{width:110px;padding:7px}.delete{border:0;background:transparent;color:#ff9aa5;cursor:pointer;font-size:18px}.modelgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.model{padding:15px;border:1px solid var(--line);border-radius:13px;background:#0e1729}.model h3{margin:0 0 7px;font-size:14px}.model p{color:var(--muted);font-size:12px;margin:0 0 10px}.model .formula{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12px;color:#d7e3ff;background:#17233a;border-radius:8px;padding:9px}.footer{color:var(--muted);font-size:11px;padding:22px 2px}.empty{text-align:center;color:var(--muted);padding:30px}.tag{font-size:10px;border:1px solid var(--line);padding:3px 7px;border-radius:100px;color:var(--muted)}.hidden{display:none!important}
+@media(max-width:900px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.modelgrid{grid-template-columns:1fr}.wrap{padding:16px}.h1{font-size:23px}}@media(max-width:480px){.stats{grid-template-columns:1fr 1fr}.stat .value{font-size:21px}}
+</style>
+</head>
+<body><div class="wrap">
+<header class="top">
+ <div class="brand"><div class="logo">R</div><div><div class="eyebrow">NFL rookie market intelligence</div><div class="h1">Rookie Edge</div><div class="sub">Red-logo rookie cards · ROTY scoring · price momentum</div></div></div>
+ <div class="actions"><button class="btn" id="exportBtn">Export CSV</button><button class="btn" id="importBtn">Import CSV</button><input id="fileInput" type="file" accept=".csv,text/csv" class="hidden"><button class="btn primary" id="addBtn">＋ Add player</button></div>
+</header>
+<div class="notice"><b>Prototype / data status:</b> This version calculates scores from the data you enter and saves it in this browser. Live odds and card-price feeds are not connected yet. The 6-hour refresh schedule becomes active after an odds and pricing provider is configured.</div>
+<section class="stats">
+ <div class="stat"><div class="label">Players tracked</div><div class="value" id="countStat">—</div><div class="small">Eligible cards in your watchlist</div></div>
+ <div class="stat"><div class="label">Green scores</div><div class="value" id="greenStat">—</div><div class="small">Score below $100</div></div>
+ <div class="stat"><div class="label">Lowest score</div><div class="value" id="lowestStat">—</div><div class="small">Among entered prices and odds</div></div>
+ <div class="stat"><div class="label">Last local save</div><div class="value" style="font-size:17px" id="savedStat">—</div><div class="small">Stored on this device/browser</div></div>
+</section>
+<section class="panel">
+ <div class="panelhead"><div><h2>Red-logo rookie watchlist</h2><div class="muted" style="font-size:12px;margin-top:4px">Edit card price and positive American OROY odds. Scores recalculate instantly.</div></div><div class="filters"><input class="input" id="search" placeholder="Search player or team…"><select id="sort"><option value="score">Sort: lowest score first</option><option value="price">Sort: card price</option><option value="odds">Sort: longest odds</option><option value="momentum">Sort: price momentum</option><option value="name">Sort: player name</option></select><select id="filter"><option value="all">All colors</option><option value="Green">Green</option><option value="Yellow">Yellow</option><option value="Orange">Orange</option><option value="Red">Red</option></select></div></div>
+ <div class="tablewrap"><table><thead><tr><th>Player / team</th><th>Card price</th><th>OROY odds</th><th>ROTY score</th><th>Color</th><th>Odds move</th><th>Price momentum</th><th>Updated</th><th></th></tr></thead><tbody id="rows"></tbody></table><div id="empty" class="empty hidden">No players match. Add a player or clear your search.</div></div>
+</section>
+<section class="panel"><div class="panelhead"><div><h2>Model lab</h2><div class="muted" style="font-size:12px;margin-top:4px">Separate signals, same watchlist. These are descriptive indicators, not buy/sell guarantees.</div></div><span class="tag">3 models enabled</span></div>
+ <div class="modelgrid">
+  <div class="model"><h3>01 · ROTY score</h3><p>Primary screen. Uses card price and the positive American odds profit multiplier, per your specification.</p><div class="formula">score = card_price × odds / 100</div><p style="margin-top:9px">Green &lt; $100 · Yellow &lt; $120 · Orange &lt; $150 · Red ≥ $150</p></div>
+  <div class="model"><h3>02 · Odds movement</h3><p>Compares the latest odds to the previous odds value you recorded. Positive movement means the listed number increased (longer odds); negative means it shortened.</p><div class="formula">movement = current odds − prior odds</div><p style="margin-top:9px">Historical snapshots are needed for reliable automated trend tracking.</p></div>
+  <div class="model"><h3>03 · Card-price momentum</h3><p>Compares current price with your previous price entry. This prototype uses the previous price as a baseline.</p><div class="formula">momentum % = (current − prior) / prior × 100</div><p style="margin-top:9px">Use comparable completed sales for the same parallel and grade.</p></div>
+ </div>
+</section>
+<section class="panel"><div class="panelhead"><div><h2>Next: connect automated feeds</h2><div class="muted" style="font-size:12px;margin-top:4px">Designed for free hosting with scheduled data refreshes.</div></div></div>
+ <ol class="muted" style="padding-left:20px;line-height:1.8;margin-bottom:0"><li>Choose an odds provider that exposes NFL OROY futures and confirm its free-tier limits.</li><li>Choose a reliable card price/sold-comps provider for the exact red-logo parallel. Marketplace asking prices alone are not sold values.</li><li>Move data and API keys to a small backend (never put secret keys in browser code).</li><li>Schedule a backend job every 6 hours to save snapshots, recalculate models, and flag changes.</li><li>Deploy this frontend on GitHub Pages or another static host; use a free backend scheduler/database tier if available.</li></ol>
+</section>
+<div class="footer">Rookie Edge is an analytics prototype. Odds are market prices, not guaranteed probabilities. Card prices may be illiquid and feeds may be delayed. Verify Fanatics eligibility and redemption terms separately. This prototype does not place bets or trades.</div>
+</div>
+<script>
+const KEY='rookie-edge-v1';
+const demo=[
+ {id:crypto.randomUUID(),name:'Example Rookie A',team:'Team / edit me',price:25,odds:300,prevPrice:22,prevOdds:350,updated:'Demo data'},
+ {id:crypto.randomUUID(),name:'Example Rookie B',team:'Team / edit me',price:38,odds:400,prevPrice:40,prevOdds:350,updated:'Demo data'},
+ {id:crypto.randomUUID(),name:'Example Rookie C',team:'Team / edit me',price:45,odds:300,prevPrice:42,prevOdds:300,updated:'Demo data'}
+];
+let players;
+try{players=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){players=null}
+if(!Array.isArray(players))players=demo;
+const $=id=>document.getElementById(id);
+const money=n=>Number.isFinite(n)?'$'+n.toFixed(2):'—';
+function score(p){return Number(p.price)*Number(p.odds)/100}
+function band(s){return s<100?'Green':s<120?'Yellow':s<150?'Orange':'Red'}
+function stamp(){return new Date().toLocaleString()}
+function save(){localStorage.setItem(KEY,JSON.stringify(players));$('savedStat').textContent=new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});renderStats()}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function num(v){return v===''?NaN:Number(v)}
+function renderStats(){const valid=players.filter(p=>Number.isFinite(Number(p.price))&&Number.isFinite(Number(p.odds))&&Number(p.price)>=0&&Number(p.odds)>0);$('countStat').textContent=players.length;$('greenStat').textContent=valid.filter(p=>band(score(p))==='Green').length;$('lowestStat').textContent=valid.length?money(Math.min(...valid.map(score))):'—';}
+function render(){
+ const q=$('search').value.toLowerCase(),filter=$('filter').value,sort=$('sort').value;
+ let list=players.filter(p=>(p.name+' '+p.team).toLowerCase().includes(q)).filter(p=>filter==='all'||band(score(p))===filter);
+ list.sort((a,b)=>sort==='price'?a.price-b.price:sort==='odds'?b.odds-a.odds:sort==='momentum'?momentum(b)-momentum(a):sort==='name'?a.name.localeCompare(b.name):score(a)-score(b));
+ $('rows').innerHTML=list.map(p=>{
+  const s=score(p),b=band(s),m=momentum(p),od=Number(p.odds)-Number(p.prevOdds);
+  const priceMove=Number.isFinite(m)?(m>0?'+':'')+m.toFixed(1)+'%':'—';
+  const oddsMove=Number.isFinite(od)?(od>0?'+':'')+od:'—';
+  return `<tr>
+  <td><div class="player">${esc(p.name)}</div><div class="subline">${esc(p.team||'')}</div></td>
+  <td><input class="input smallinput" type="number" min="0" step=".01" value="${esc(p.price)}" data-id="${p.id}" data-field="price" aria-label="Card price"></td>
+  <td><span style="color:var(--muted)">+</span><input class="input mini" type="number" min="1" step="1" value="${esc(p.odds)}" data-id="${p.id}" data-field="odds" aria-label="Positive American odds"></td>
+  <td><div class="score">${money(s)}</div><div class="subline">score</div></td>
+  <td><span class="pill ${b.toLowerCase()}">${b.toUpperCase()}</span></td>
+  <td><span class="${od<0?'positive':od>0?'negative':'muted'}">${od<0?'Shortened':od>0?'Lengthened':'Flat'} ${od===0?'':esc(oddsMove)}</span></td>
+  <td><span class="${m>0?'positive':m<0?'negative':'muted'}">${esc(priceMove)}</span></td>
+  <td class="muted" style="font-size:11px">${esc(p.updated||'Manual')}</td>
+  <td><button class="delete" data-delete="${p.id}" title="Remove player" aria-label="Remove player">×</button></td></tr>`;
+ }).join('');
+ $('empty').classList.toggle('hidden',list.length>0);renderStats();
+}
+function momentum(p){const a=Number(p.prevPrice),b=Number(p.price);return Number.isFinite(a)&&a>0&&Number.isFinite(b)?(b-a)/a*100:NaN}
+$('rows').addEventListener('change',e=>{const el=e.target,id=el.dataset.id,field=el.dataset.field;if(!id||!field)return;const p=players.find(x=>x.id===id);if(!p)return;const v=num(el.value);if(!Number.isFinite(v)||v<0||(field==='odds'&&v<=0)){alert(field==='odds'?'Enter positive American odds, such as 300 for +300.':'Enter a nonnegative price.');render();return;}if(field==='price'){p.prevPrice=Number(p.price);p.price=v}else{p.prevOdds=Number(p.odds);p.odds=v}p.updated='Manual · '+stamp();save();render()});
+$('rows').addEventListener('click',e=>{const id=e.target.dataset.delete;if(id&&confirm('Remove this player from the watchlist?')){players=players.filter(p=>p.id!==id);save();render()}});
+['search','sort','filter'].forEach(id=>$(id).addEventListener(id==='search'?'input':'change',render));
+$('addBtn').onclick=()=>{const name=prompt('Player name:');if(!name||!name.trim())return;const price=Number(prompt('Current card price in dollars (e.g. 25):','25'));if(!Number.isFinite(price)||price<0)return alert('Invalid card price.');const odds=Number(prompt('Positive American OROY odds (enter 300 for +300):','300'));if(!Number.isFinite(odds)||odds<=0)return alert('Enter positive American odds.');const team=prompt('Team (optional):','')||'';players.push({id:crypto.randomUUID(),name:name.trim(),team,price,odds,prevPrice:price,prevOdds:odds,updated:'Manual · '+stamp()});save();render()};
+function csvEscape(v){return '"'+String(v??'').replace(/"/g,'""')+'"'}
+$('exportBtn').onclick=()=>{const cols=['name','team','price','odds','prevPrice','prevOdds','updated'];const csv=[cols.join(','),...players.map(p=>cols.map(k=>csvEscape(p[k])).join(','))].join('\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='rookie-edge-watchlist.csv';a.click();URL.revokeObjectURL(a.href)};
+$('importBtn').onclick=()=>$('fileInput').click();
+$('fileInput').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const txt=await f.text();const lines=txt.trim().split(/\r?\n/);const parse=line=>{let out=[],v='',quoted=false;for(let i=0;i<line.length;i++){let c=line[i];if(c==='"'&&line[i+1]==='"'&&quoted){v+='"';i++}else if(c==='"')quoted=!quoted;else if(c===','&&!quoted){out.push(v);v=''}else v+=c}out.push(v);return out};const headers=parse(lines.shift()).map(s=>s.trim());const imported=lines.filter(Boolean).map(line=>{const vals=parse(line),o={};headers.forEach((h,i)=>o[h]=vals[i]);return {id:crypto.randomUUID(),name:o.name||'Unnamed',team:o.team||'',price:Number(o.price)||0,odds:Number(o.odds)||300,prevPrice:o.prevPrice===''||o.prevPrice===undefined?Number(o.price)||0:Number(o.prevPrice),prevOdds:o.prevOdds===''||o.prevOdds===undefined?Number(o.odds)||300:Number(o.prevOdds),updated:o.updated||'Imported'}});if(!imported.length)throw new Error('No rows found');if(confirm('Replace the current watchlist with '+imported.length+' imported rows?')){players=imported;save();render()}}catch(err){alert('Could not import CSV: '+err.message)}e.target.value=''};
+renderStats();render();
+</script></body></html>
